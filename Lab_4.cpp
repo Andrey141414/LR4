@@ -13,10 +13,11 @@ class chess_figure {
 
 private:
 	
-	string name;
+	
 	//Если pawn = true: фигура является пешкой, если false, то не пешкой 
 	
 public:
+	string name;
 	int value;
 	bool pawn = false;
 	//функция установки значений
@@ -25,11 +26,36 @@ public:
 	void Init(int val, string name);
 	//функция вывода
 	void Display();
-	chess_figure Add(chess_figure a, chess_figure b);
+	chess_figure* Add(chess_figure a, chess_figure b);
 	void compare(chess_figure b);
 	void zapolnenie_din_mass(chess_figure* mass, int N);
 	void pawn_promotion();
+	chess_figure&  operator ++ ();
+	chess_figure operator ++ (int);
+	chess_figure operator+( chess_figure right);
+	
+	
 };
+
+chess_figure& chess_figure::operator ++ ()
+{
+	this->value += 2;
+	return *this;
+
+}
+chess_figure chess_figure::operator ++ (int)
+{
+	chess_figure buf;
+	buf = (*this);
+	++(*this);
+	return buf;
+}
+chess_figure chess_figure:: operator+(chess_figure right)
+{
+	this->value = right.value+this->value;
+	return *this;
+	
+}
 void chess_figure::Read()
 {
 
@@ -95,14 +121,14 @@ void chess_figure::compare(chess_figure b)
 	cout<<name<<" "<<comp << " " <<b.name;
 
 }
-chess_figure chess_figure::Add(chess_figure a, chess_figure b)
+chess_figure* chess_figure::Add(chess_figure a, chess_figure b)
 {
 	system("cls");
-	chess_figure Summa;
-	Summa.value = a.value + b.value;
-	Summa.name = a.name + " и " + b.name;
 	
-	return Summa;
+	this->value = a.value + b.value;
+	this->name = a.name + " и " + b.name;
+	
+	return this;
 }
 void chess_figure::pawn_promotion()
 {
@@ -163,7 +189,7 @@ class Chess_player
 {
 private:
 //колличество фигур
-int numbers;
+int numbers  = 0;
 string PlayerName;
 //РАзряд шахматиста
 int rank;
@@ -179,9 +205,9 @@ public :
 	void playerInit(string Pn, int numb, chess_figure cf[16], int razryad);
 	//функция вывода
 	void playerDisplay();
-	void playerAdd(Chess_player a, Chess_player b);
+	Chess_player& playerAdd(Chess_player a, Chess_player b);
 	void playerCompare(Chess_player player);
-	
+	friend void newDisplay(Chess_player a);
 
 };
 void Chess_player :: playerRead()
@@ -227,40 +253,14 @@ void Chess_player::playerInit(string Pn ,int numb, chess_figure cf[16], int razr
 	rank = razryad;
 	color = false;
 }
- void Chess_player :: playerAdd(Chess_player a, Chess_player b)
+Chess_player& Chess_player :: playerAdd(Chess_player a, Chess_player b)
 {
 	
-	 if (a.rank < b.rank)
-		 rank = a.rank;
-	 else
-		 rank = b.rank;
-	 int aPower = 0;
-	 int bPower = 0;
-	 for (int i = 0; i < a.numbers; i++)
-	 {
-		 aPower += a.figures[i].value;
-	 }
-	 for (int i = 0; i < b.numbers; i++)
-	 {
-		 bPower += b.figures[i].value;
-	 }
-	 if (aPower > bPower)
-	 {
-		 numbers = a.numbers;
-		 for (int i = 0; i < a.numbers; i++)
-			 figures[i] = a.figures[i];
-	 }
-	 else
-	 {
-		 numbers = b.numbers;
-		 for (int i = 0; i < b.numbers; i++)
-			 figures[i] = b.figures[i];
-	 }
-	 cout << "Если бы шахматисты играли вместе, то\n";
-	 cout << "Максимальный разряд был бы - "<<rank;
-	 cout << "\nА лучшие фигуры были бы \n";
-	 for (int i = 0; i < numbers; i++)
-		 figures[i].Display();
+	this->PlayerName = a.PlayerName + "+" + b.PlayerName;
+	this->rank = a.rank + b.rank;
+	
+	
+	return *this;
 	 
 }
  void Chess_player::playerCompare(Chess_player player)
@@ -281,6 +281,14 @@ void Chess_player::playerInit(string Pn ,int numb, chess_figure cf[16], int razr
 		 cout << " НИЧЬЯ ";
 	 }
  }
+
+
+ void newDisplay(Chess_player a)
+ {
+	 int lent = a.PlayerName.length();
+	 cout << lent;
+ }
+
 /////////////////////////////////////////////////////////////////////
 int main()
 {
@@ -289,8 +297,40 @@ int main()
 	setlocale(LC_ALL, "Rus");
 	
 	chess_figure MAS[10];
+	//Возврат значения через указатель
+	chess_figure a,b,d;
+	a.Init(3, "Конь");
+	a++;
+	b.Init(9, "Ферзь");
+	//перегрузка оператора '+'
+	d = a + b;
+	d.Display();
+	puts("");
+	system("pause");
+	system("cls");
 
-	for (int i = 0; i < 10; i++)
+	chess_figure* c = new (chess_figure);
+	c->Add(a, b);
+	c->Display();
+
+
+	puts("");
+	system("pause");
+	system("cls");
+
+
+	//Возврат значения через сслыку
+	Chess_player Andrey;
+	Chess_player Magnus;
+	Magnus.playerInit("Магнус", 10, MAS, 1);
+	Andrey.playerInit("Андрей", 10, MAS, 1);
+	Chess_player together;
+	Chess_player& togetherRef = together;
+	togetherRef.playerAdd(Andrey, Magnus);
+	togetherRef.playerDisplay();
+	newDisplay(together);
+	
+	/*for (int i = 0; i < 10; i++)
 	{
 		switch (i%5)
 		{
@@ -301,32 +341,32 @@ int main()
 		case 4: {MAS[i].Init(9, NAMES[i % 5]); }; break;
 		}
 		
-	}
+	}*/
 
-	Chess_player Andrey;
-	Chess_player Magnus;
-	Magnus.playerInit("Магнус",10, MAS, 1);
+	//Chess_player Andrey;
+	//Chess_player Magnus;
+	//Magnus.playerInit("Магнус",10, MAS, 1);
 
-	Andrey.playerRead();
-	puts("");
-	system("pause");
-	system("cls");
-	Andrey.playerDisplay();
-	puts("");
-	system("pause");
-	system("cls");
-	Magnus.playerDisplay();
-	puts("");
-	system("pause");
-	system("cls");
-	//шахматист с самыми сильными сторонами от обоих играков
-	Chess_player *together = new (Chess_player);
-	together->playerAdd(Andrey, Magnus);
-	delete(together);
-	puts("");
-	system("pause");
-	system("cls");
-	Andrey.playerCompare(Magnus);
+	//Andrey.playerRead();
+	//puts("");
+	//system("pause");
+	//system("cls");
+	//Andrey.playerDisplay();
+	//puts("");
+	//system("pause");
+	//system("cls");
+	//Magnus.playerDisplay();
+	//puts("");
+	//system("pause");
+	//system("cls");
+	////шахматист с самыми сильными сторонами от обоих играков
+	//Chess_player *together = new (Chess_player);
+	//together->playerAdd(Andrey, Magnus);
+	//delete(together);
+	//puts("");
+	//system("pause");
+	//system("cls");
+	//Andrey.playerCompare(Magnus);
 
 	
 }
