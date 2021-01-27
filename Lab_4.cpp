@@ -1,65 +1,69 @@
-﻿//#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include<stdio.h>
 #include<locale.h>
 #include<windows.h>
+#include <math.h>
+#include<string>
+#include<malloc.h>
+#include<stdlib.h>
 using namespace std;
-string NAMES[5] = { "Пешка","Конь", "Слон", "Ладья", "Ферзь" };
+string NAMES[5] = {"Пешка","Конь", "Слон", "Ладья", "Ферзь"};
 class chess_figure {
 
 private:
+	
 	string name;
+	//Если pawn = true: фигура является пешкой, если false, то не пешкой 
+	
 public:
-	//Колличество элементов класса
-	static int quantity;
+	int* Test;
 	int value;
 	bool pawn = false;
 	//функция установки значений
 	void Read();
-	//функция получения значений
-	void Init(int val, string name);
+	//конструктор со всеми параметрами
+	chess_figure(int value, string name, bool pawn);
+	//конструктор с одним параметром
+	chess_figure(string name);
+	chess_figure();
 	//функция вывода
 	void Display();
-	//
-	void static cut(char ch);
-	//
-	void static quantityDisplay();
-	//
-	void static pause();
+	chess_figure Add(chess_figure a, chess_figure b);
+	void compare(chess_figure b);
+	void zapolnenie_din_mass(chess_figure* mass, int N);
+	void pawn_promotion();
 };
+chess_figure::chess_figure(int value, string name,bool pawn)
+{
+	this->name = name;
+	this->value = value; 
+	this->pawn = pawn;
+}
 
-void chess_figure::pause()
+chess_figure::chess_figure(string name)
 {
-	cout << "\n\n";
-	system("pause");
-	system("cls");
+	this->name = name;
+	this->value = 3;
 }
-void chess_figure::cut(char ch)
+chess_figure::chess_figure()
 {
-	if (ch == 'c') {
-		quantity--;
-	}
-}
-void chess_figure::quantityDisplay()
-{
-	if (quantity > 0) {
-		cout << "You have  " << quantity << " figures";
-	}
-	else {
-		cout << "You lose!!!";
-	}
+	this->name = "King";
+	this->value = 10;
+	this->pawn = true;
+	Test = new int;
 }
 void chess_figure::Read()
 {
 
 
-
+	
 	int vibor;
 	puts("Название фигуры");
 	for (int i = 0; i < 5; i++)
 	{
-
-		cout << i + 1 << " " << NAMES[i] << "\n";
+		
+		cout<<i+1<<" "<<NAMES[i]<<"\n";
 
 	}
 
@@ -74,39 +78,182 @@ void chess_figure::Read()
 	case 5: {value = 9; }break;
 	}
 	system("cls");
+	
+}
 
-}
-void chess_figure::Init(int Val, string Name)
-{
-	value = Val;
-	name = Name;
-	if (Name == NAMES[0])
-		pawn = true;
-	else
-		pawn = false;
-}
 void chess_figure::Display()
 {
 
-	cout << name << " Ценность " << value << "\n";
-
-
+	cout<<name<< " Ценность "<<value<<"\n";
+	
+	
 }
 
-int chess_figure::quantity = 2;
 
+/////////////////////////////////////////////////////////////////////////////
+//В случае наличия указателей при присваивании содержимого объектов
+//происходит мелкое копирование. 
+//И получается ситуация что два адреса указывают на одну и туу же ячейку памяти
+//И изменение содержимого в одном объекте влечет изменение в другом
+class Chess_player
+{
+private:
+//колличество фигур
+int numbers;
+string PlayerName;
+//РАзряд шахматиста
+int rank;
+
+
+public :
+	int* test;
+	//сами фигуры
+	chess_figure figures[16];
+	bool color =true;
+	//функция установки значений
+	void playerRead();
+	//функция получения значений
+	void playerInit(string Pn, int numb, chess_figure cf[16], int razryad);
+	//функция вывода
+	void playerDisplay();
+	void playerAdd(Chess_player a, Chess_player b);
+	void playerCompare(Chess_player player);
+	//Конструктор со всеми параметрами
+	Chess_player(string Pn, int numb, chess_figure cf[16], int razryad);
+	//конструктор копии
+	Chess_player(const Chess_player &player)
+	{
+		this->PlayerName =  player.PlayerName;
+		this->numbers = player.numbers;
+		for (int i = 0; i < numbers; i++)
+		{
+			this->figures[i] = player.figures[i];
+		}
+		this->rank = player.rank;
+		this->color = player.color;
+	}
+	Chess_player& operator= (Chess_player& player);
+	void testDisplay();
+};
+
+Chess_player & Chess_player::operator=(Chess_player& player)
+{
+	//теперь указатели не будут указывать на общуюю облать памяти 
+	//Указателю в новом экземпляре выделили другой адрес
+	if (test)
+		delete test ;
+	
+	test = NULL;
+	this->PlayerName = player.PlayerName;
+	this->numbers = player.numbers;
+	for (int i = 0; i < numbers; i++)
+	{
+		this->figures[i] = player.figures[i];
+	}
+	this->rank = player.rank;
+	this->color = player.color;
+	this->test = new int;
+	*(this->test) = *(player.test);
+	return *this;
+}
+void Chess_player::testDisplay()
+{
+	cout << "Имя " << PlayerName << "\n";
+	cout << "TEST " << *(test) << "\n";
+}
+void Chess_player::playerDisplay()
+{
+	cout << "Имя " << PlayerName << "\n";
+	cout << "Разряд " << rank << "\n";
+	if (color)
+		cout << "Играет белыми\n";
+	else
+		cout <<"Играет чёрными\n";
+	cout << "Колличество фигур " << numbers << "\n";
+	cout << "Фигуры:"<< "\n";
+	for (int i = 0; i < numbers; i++)
+	{
+		cout << i + 1;
+		figures[i].Display();
+	}
+
+}
+Chess_player::Chess_player(string Pn ,int numb, chess_figure cf[16], int razryad)
+{
+	rank = razryad;
+	PlayerName = Pn;
+	numbers = numb;
+	for (int i = 0; i < numbers; i++)
+	{
+		figures[i] = cf[i];
+	}
+	color = false;
+}
+ 
+/////////////////////////////////////////////////////////////////////
 int main()
 {
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	setlocale(LC_ALL, "Rus");
 
-	do
+	chess_figure a(5, "Ladya", false);
+	//Вызов конструктора с 1 параметром
+	//для динамического объекта
+	chess_figure* b;
+	b = new chess_figure("Slon");
+	chess_figure c;
+
+
+	a.Display();
+	b->Display();
+	c.Display();
+
+	chess_figure MAS[5];
+
+	for (int i = 0; i < 5; i++)
 	{
-		char ch;
-		cin >> ch;
+		chess_figure* buff;
+		if (i % 2 == 0)
+		{
+			buff = new chess_figure("Slon");
+		}
+		else
+		{
+			buff = new chess_figure("Kon");
+		}
+		MAS[i] = *(buff);
+	}
+	cout << "\n\nMassive\n\n";
+	for (int i = 0; i < 5; i++)
+	{
+		MAS[i].Display();
+	}
 
-		chess_figure::cut(ch);
-		chess_figure::quantityDisplay();
-		chess_figure::pause();
+	//////////
+	Chess_player Andrey("Andrey", 5, MAS, 2);
+	Andrey.test = new int;
+	*(Andrey.test) = 9;
+	Chess_player Magnus(Andrey);
+	Chess_player Mayke("M", 4, MAS, 2);
 
-	} while (chess_figure::quantity >= 0);
+	cout << "\n\nCOPYS\n\n";
+	Andrey.playerDisplay();
 
+	cout << "\n\nCOPYS\n\n";
+	Magnus.playerDisplay();
+
+	Mayke = Andrey;
+
+	cout << "\n\nCOPYS\n\n";
+	Mayke.testDisplay();
+	Andrey.testDisplay();
+	cout << "\n\nCOPYS\n\n";
+	*(Andrey.test) += 2;
+	cout << "\n\nCOPYS\n\n";
+	Mayke.testDisplay();
+	Andrey.testDisplay();
+	
+	
+	
 }
