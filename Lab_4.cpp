@@ -181,8 +181,13 @@ void Chess_player::playerDisplay()
 Chess_player::Chess_player(string Pn ,int numb, chess_figure cf[16], int razryad)
 {
 	rank = razryad;
+	
 	PlayerName = Pn;
 	numbers = numb;
+	if (sizeof(figures)/sizeof(chess_figure) < numb)
+	{
+		throw Pn;
+	}
 	for (int i = 0; i < numbers; i++)
 	{
 		figures[i] = cf[i];
@@ -197,21 +202,11 @@ int main()
 	SetConsoleOutputCP(1251);
 	setlocale(LC_ALL, "Rus");
 
-	chess_figure a(5, "Ladya", false);
-	//Вызов конструктора с 1 параметром
-	//для динамического объекта
-	chess_figure* b;
-	b = new chess_figure("Slon");
-	chess_figure c;
+	
+	//Инициализация массива шахматных фигур с помощью конструктора
+	chess_figure MAS[16];
 
-
-	a.Display();
-	b->Display();
-	c.Display();
-
-	chess_figure MAS[5];
-
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 16; i++)
 	{
 		chess_figure* buff;
 		if (i % 2 == 0)
@@ -224,36 +219,26 @@ int main()
 		}
 		MAS[i] = *(buff);
 	}
-	cout << "\n\nMassive\n\n";
-	for (int i = 0; i < 5; i++)
-	{
-		MAS[i].Display();
-	}
+	
 
 	//////////
-	Chess_player Andrey("Andrey", 5, MAS, 2);
-	Andrey.test = new int;
-	*(Andrey.test) = 9;
-	Chess_player Magnus(Andrey);
-	Chess_player Mayke("M", 4, MAS, 2);
-
-	cout << "\n\nCOPYS\n\n";
-	Andrey.playerDisplay();
-
-	cout << "\n\nCOPYS\n\n";
-	Magnus.playerDisplay();
-
-	Mayke = Andrey;
-
-	cout << "\n\nCOPYS\n\n";
-	Mayke.testDisplay();
-	Andrey.testDisplay();
-	cout << "\n\nCOPYS\n\n";
-	*(Andrey.test) += 2;
-	cout << "\n\nCOPYS\n\n";
-	Mayke.testDisplay();
-	Andrey.testDisplay();
 	
+	
+	try
+	{
+		int N = sizeof(MAS) / sizeof(chess_figure);
+		Chess_player Andrey("Andrey", 17, MAS, 3);
+		Chess_player Magnus(Andrey);
+		Chess_player Mayke("M", N, MAS, 3);
+	}
+	//Отлавливаем игроков чей разряд ниже второго(3,4...)
+	catch (string name)
+	{
+		
+		cout << "Превышен максимальный размер массива  игроком -  "<<name;
+		cout << "\n\n";
+
+	}
 	
 	
 }
