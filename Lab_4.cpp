@@ -13,10 +13,11 @@ class chess_figure {
 
 private:
 	
-	string name;
+	
 	//Если pawn = true: фигура является пешкой, если false, то не пешкой 
 	
 public:
+	string name;
 	int* Test;
 	int value;
 	bool pawn = false;
@@ -30,9 +31,10 @@ public:
 	//функция вывода
 	void Display();
 	chess_figure Add(chess_figure a, chess_figure b);
-	void compare(chess_figure b);
-	void zapolnenie_din_mass(chess_figure* mass, int N);
-	void pawn_promotion();
+	void initName(string name)
+	{
+		this->name = name;
+	}
 };
 chess_figure::chess_figure(int value, string name,bool pawn)
 {
@@ -222,23 +224,31 @@ int main()
 	
 
 	//////////
-	
-	
-	try
+	const int N = 2;
+	const int M = 8;
+	chess_figure MAS1[2][8];
+	for (int i = 0; i < M; i++)
 	{
-		int N = sizeof(MAS) / sizeof(chess_figure);
-		Chess_player Andrey("Andrey", 17, MAS, 3);
-		Chess_player Magnus(Andrey);
-		Chess_player Mayke("M", N, MAS, 3);
+		chess_figure a("Pawn");
+		MAS1[1][i] = a;
 	}
-	//Отлавливаем игроков чей разряд ниже второго(3,4...)
-	catch (string name)
+	MAS1[0][0].initName("Ladya");
+	MAS1[0][1].initName("Kon");
+	MAS1[0][2].initName("Slon");
+	MAS1[0][3].initName("Queen");
+	MAS1[0][4].initName("King");
+	MAS1[0][5].initName("Slon");
+	MAS1[0][6].initName("Kon");
+	MAS1[0][7].initName("Ladya");
+
+	for (int i = 0; i < N; i++)
 	{
 		
-		cout << "Превышен максимальный размер массива  игроком -  "<<name;
-		cout << "\n\n";
-
+		for (int j = 0; j < M; j++)
+		{
+			cout << MAS1[i][j].name << "\t";
+		}
+		cout << "\n";
 	}
-	
 	
 }
